@@ -5,10 +5,6 @@ import {EventListContainer} from "./components/event_list_container";
 import {Navigation} from "./components/navigation";
 import {EventBookingFormContainer} from "./components/event_booking_form_container";
 
-declare function require(n: string): any;
-
-const bs = require("bootstrap/dist/css/bootstrap.css");
-
 class App extends React.Component<{}, {}> {
     render() {
         const eventList = () => <EventListContainer eventServiceURL="http://localhost:8181"/>;

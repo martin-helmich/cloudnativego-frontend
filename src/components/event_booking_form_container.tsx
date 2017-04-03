@@ -9,7 +9,7 @@ export interface EventBookingFormContainerProps {
 }
 
 export interface EventBookingFormState {
-    loading: boolean;
+    state: "loading"|"ready"|"saving"|"done"|"error";
     event?: Event;
 }
 
@@ -18,21 +18,21 @@ export class EventBookingFormContainer extends React.Component<EventBookingFormC
         super(p);
 
         this.state = {
-            loading: true
+            state: "loading"
         };
 
         fetch(p.eventServiceURL + "/events/" + p.eventID)
             .then<Event>(resp => resp.json())
             .then(event => {
                 this.setState({
-                    loading: false,
+                    state: "ready",
                     event: event
                 });
             })
     }
 
     render() {
-        if (this.state.loading) {
+        if (this.state.state === "loading") {
             return <div>Loading...</div>;
         }
 
@@ -43,7 +43,21 @@ export class EventBookingFormContainer extends React.Component<EventBookingFormC
         return <EventBookingForm event={this.state.event} onSubmit={amount => this.handleSubmit(amount)}/>
     }
 
-    private handleSubmit(amount: number) {
+    private handleSubmit(seats: number) {
+        const url = this.props.bookingServiceURL + "/events/" + this.props.eventID + "/bookings";
+        const payload = {seats: seats};
 
+        this.setState({
+            event: this.state.event,
+            state: "saving"
+        });
+
+        fetch(url, {method: "POST", body: JSON.stringify(payload)})
+            .then(response => {
+                this.setState({
+                    event: this.state.event,
+                    state: response.ok ? "done" : "error"
+                });
+            })
     }
 }
